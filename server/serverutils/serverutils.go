@@ -109,7 +109,7 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
-func exist(p string) bool {
+func Exist(p string) bool {
 	if _, err := os.Stat(p); err == nil {
 		return true
 	}
