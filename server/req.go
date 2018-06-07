@@ -15,5 +15,7 @@ func (f *Conn) handleWebHook(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(msg))
 		fmt.Println(msg, status)
 		return
+	} else {
+		return
 	}
 }

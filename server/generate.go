@@ -70,10 +70,10 @@ func genCrt(certpath, keypath string) {
 	}
 	c := filepath.Dir(certpath)
 	k := filepath.Dir(keypath)
-	if !exist(c) {
+	if !Exist(c) {
 		log.Fatal("path doesn't exist ", c)
 	}
-	if !exist(k) {
+	if !Exist(k) {
 		log.Fatal("path doesn't exist ", k)
 	}
 	flag.Parse()

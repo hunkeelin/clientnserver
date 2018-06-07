@@ -9,6 +9,10 @@ type JobConfig struct {
 	run string
 }
 
+type Payload struct {
+	s string
+}
+
 type Conn struct {
 	regex   string
 	apikey  string
