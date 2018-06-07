@@ -1,4 +1,4 @@
-package klinutils
+package serverutils
 
 import (
 	"crypto/hmac"
