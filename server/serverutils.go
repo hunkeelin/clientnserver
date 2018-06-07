@@ -1,4 +1,4 @@
-package serverutils
+package main
 
 import (
 	"crypto/hmac"

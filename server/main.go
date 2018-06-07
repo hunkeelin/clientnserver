@@ -25,7 +25,7 @@ func main() {
 	newcon.pkidir = c.pkidir
 
 	// Generate cert
-	if !exist(c.certpath) || !exist(c.keypath) {
+	if !Exist(c.certpath) || !Exist(c.keypath) {
 		genCrt(c.certpath, c.keypath)
 	}
 
