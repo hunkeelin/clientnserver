@@ -6,6 +6,7 @@ import (
 )
 
 func (f *Conn) handleWebHook(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(r.Header.Get("content-type"))
 	status := 200
 	msg := "it worked"
 	w.WriteHeader(status)

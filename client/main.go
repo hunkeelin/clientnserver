@@ -20,7 +20,8 @@ func main() {
 	h, _ := os.Hostname()
 	certpath := c.keycertdir + "certs/" + h + ".crt"
 	keypath := c.keycertdir + "keys/" + h + ".key"
-	if !exist(certpath) || !exist(keypath) {
+	//if !exist(certpath) || !exist(keypath) {
+	if true {
 		genCrt(certpath, keypath)
 		masteraddr := getHostnameFromCert(c.mastercrt)
 		url := "https://" + masteraddr + ":" + c.masterport

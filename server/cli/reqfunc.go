@@ -46,6 +46,7 @@ func dowork(m string) (string, int) {
 		log.Fatal(err)
 	}
 	req.Header.Set("X-API-Key", "wtf")
+	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := client.Do(req)
 	if err != nil {

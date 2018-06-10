@@ -37,6 +37,7 @@ func main() {
 			tls.X25519,
 		},
 		MinVersion: tls.VersionTLS12,
+		//	ClientAuth: tls.RequireAndVerifyClientCert,
 	}
 	con := http.NewServeMux()
 	con.HandleFunc("/", newcon.handleWebHook)
