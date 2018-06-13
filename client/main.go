@@ -4,9 +4,10 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
+	"github.com/hunkeelin/pki"
 	"log"
 	"net/http"
-	"os"
+	//	"os"
 	"time"
 )
 
@@ -17,16 +18,18 @@ var (
 func main() {
 	flag.Parse()
 	c := readconfig(*gconfdir)
-	h, _ := os.Hostname()
-	certpath := c.keycertdir + "certs/" + h + ".crt"
-	keypath := c.keycertdir + "keys/" + h + ".key"
-	//if !exist(certpath) || !exist(keypath) {
-	if true {
-		genCrt(certpath, keypath)
+	csrpath := c.keycertdir + "csr/"
+	keypath := c.keycertdir + "keys/test2.klin-pro.com.key"
+	if !exist(csrpath) || !exist(keypath) {
+		klinpki.GenCSR(2048, keypath, csrpath)
 		masteraddr := getHostnameFromCert(c.mastercrt)
 		url := "https://" + masteraddr + ":" + c.masterport
-		sendcert(c.mastercrt, url, c.keycertdir)
+		sendcsr(c.mastercrt, url, c.keycertdir)
 	} else {
+		//	masteraddr := getHostnameFromCert(c.mastercrt)
+		//	url := "https://" + masteraddr + ":" + c.masterport
+		//	sendcsr(c.mastercrt, url, c.keycertdir)
+		//	os.Exit(2)
 		newcon := new(Conn)
 		newcon.monorun = make(chan struct{}, 1)
 		tlsconfig := &tls.Config{
@@ -49,6 +52,7 @@ func main() {
 			IdleTimeout:  120 * time.Second,
 		}
 		fmt.Println("listening to " + c.bindaddr + " " + c.port)
+		certpath := "program/certs/test2.klin-pro.com.crt"
 		err := s.ListenAndServeTLS(certpath, keypath)
 		//err := s.ListenAndServe()
 		if err != nil {

@@ -60,7 +60,6 @@ func getHostnameFromCert(path string) string {
 		fmt.Println("can't parse file", path)
 		log.Fatal(err)
 	}
-	fmt.Println(len(leaf.DNSNames))
 	return leaf.DNSNames[0]
 }
 

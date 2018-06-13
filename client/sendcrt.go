@@ -45,15 +45,15 @@ func newfileUploadRequest(uri string, params map[string]string, paramName, path 
 	return req, err
 }
 
-func sendcert(m, host, k string) {
+func sendcsr(m, host, k string) {
 	h, err := os.Hostname()
 	if err != nil {
 		log.Fatal(err)
 	}
 	extraParams := map[string]string{
-		"filename": h + ".crt",
+		"filename": h + ".csr",
 	}
-	request, err := newfileUploadRequest(host, extraParams, "file", k+"certs/"+h+".crt")
+	request, err := newfileUploadRequest(host, extraParams, "file", k+"csr/"+h+".csr")
 	if err != nil {
 		panic(err)
 	}
