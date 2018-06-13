@@ -20,16 +20,16 @@ func main() {
 	c := readconfig(*gconfdir)
 	csrpath := c.keycertdir + "csr/"
 	keypath := c.keycertdir + "keys/test2.klin-pro.com.key"
-	if !exist(csrpath) || !exist(keypath) {
+	if !exist(keypath) {
 		klinpki.GenCSR(2048, keypath, csrpath)
 		masteraddr := getHostnameFromCert(c.mastercrt)
 		url := "https://" + masteraddr + ":" + c.masterport
 		sendcsr(c.mastercrt, url, c.keycertdir)
 	} else {
-		//	masteraddr := getHostnameFromCert(c.mastercrt)
-		//	url := "https://" + masteraddr + ":" + c.masterport
-		//	sendcsr(c.mastercrt, url, c.keycertdir)
-		//	os.Exit(2)
+		masteraddr := getHostnameFromCert(c.mastercrt)
+		url := "https://" + masteraddr + ":" + c.masterport
+		sendcsrv2(c.mastercrt, url, c.keycertdir)
+		log.Fatal("done")
 		newcon := new(Conn)
 		newcon.monorun = make(chan struct{}, 1)
 		tlsconfig := &tls.Config{

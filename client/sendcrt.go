@@ -45,6 +45,64 @@ func newfileUploadRequest(uri string, params map[string]string, paramName, path 
 	return req, err
 }
 
+func sendcsrv2(m, host, k string) {
+	h, err := os.Hostname()
+	if err != nil {
+		log.Fatal(err)
+	}
+	extraParams := map[string]string{
+		"filename": h + ".csr",
+	}
+	request, err := newfileUploadRequest(host, extraParams, "file", k+"csr/"+h+".csr")
+	if err != nil {
+		panic(err)
+	}
+
+	//cert, err := tls.LoadX509KeyPair("program/certs/test2.klin-pro.com.crt", "program/keys/test2.klin-pro.com.key")
+	cert, err := tls.LoadX509KeyPair("program/certs/test2.klin-pro.com.crt", "program/keys/test2.klin-pro.com.key")
+	if err != nil {
+		log.Fatalln("Unable to load cert", err)
+	}
+
+	// Get the SystemCertPool, continue with an empty pool on error
+	rootCAs, _ := x509.SystemCertPool()
+	if rootCAs == nil {
+		rootCAs = x509.NewCertPool()
+	}
+	certs, err := ioutil.ReadFile(m)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if ok := rootCAs.AppendCertsFromPEM(certs); !ok {
+		log.Println("No certs appended, using system certs only")
+	}
+	config := &tls.Config{
+		InsecureSkipVerify: false,
+		Certificates:       []tls.Certificate{cert},
+		RootCAs:            rootCAs,
+	}
+	config.BuildNameToCertificate()
+	tr := &http.Transport{TLSClientConfig: config}
+	client := &http.Client{
+		Transport: tr,
+		Timeout:   500 * time.Millisecond,
+	}
+	//** end of clean up
+	resp, err := client.Do(request)
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		body := &bytes.Buffer{}
+		_, err := body.ReadFrom(resp.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		resp.Body.Close()
+		fmt.Println(resp.StatusCode)
+		fmt.Println(body)
+	}
+}
+
 func sendcsr(m, host, k string) {
 	h, err := os.Hostname()
 	if err != nil {
