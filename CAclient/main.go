@@ -12,9 +12,10 @@ var (
 )
 
 func main() {
+	h, _ := os.Hostname()
 	flag.Parse()
 	c := readconfig(*gconfdir)
-	keypath := c.keycertdir + "keys/test2.klin-pro.com.key"
+	keypath := c.keycertdir + "keys/" + h + ".key"
 	csr, key := klinpki.GenCSRv2(2048)
 	keyOut, err := os.OpenFile(keypath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
@@ -23,5 +24,14 @@ func main() {
 	pem.Encode(keyOut, key)
 	masteraddr := getHostnameFromCert(c.mastercrt)
 	url := "https://" + masteraddr + ":" + c.masterport
-	sendcsr(c.mastercrt, url, c.keycertdir, csr.Bytes)
+	f, err := sendcsr(c.mastercrt, url, c.keycertdir, csr.Bytes)
+	if err != nil {
+		panic(err)
+	}
+	clientCRTFile, err := os.Create(h + ".crt")
+	if err != nil {
+		panic(err)
+	}
+	pem.Encode(clientCRTFile, &pem.Block{Type: "CERTIFICATE", Bytes: f})
+	clientCRTFile.Close()
 }

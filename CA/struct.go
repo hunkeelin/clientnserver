@@ -34,14 +34,17 @@ func (g Gitpayload) doesmatchbody(regex string) bool {
 }
 
 type Config struct {
-	apikey   string
-	bindaddr string
-	pkidir   string
-	port     string
-	certpath string
-	keypath  string
-	jobdir   string
-	concur   int
+	apikey    string
+	bindaddr  string
+	org       string
+	pkidir    string
+	port      string
+	certpath  string
+	keypath   string
+	jobdir    string
+	concur    int
+	CApath    string
+	CAkeypath string
 }
 
 type Gitpayload struct {

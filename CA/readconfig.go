@@ -23,6 +23,18 @@ func readconfig(p string) Config {
 	checkerr(err)
 	c.apikey = apikey
 
+	CApath, err := config.Get("CApath")
+	checkerr(err)
+	c.CApath = CApath
+
+	org, err := config.Get("org")
+	checkerr(err)
+	c.org = org
+
+	CAkeypath, err := config.Get("CAkeypath")
+	checkerr(err)
+	c.CAkeypath = CAkeypath
+
 	bindaddr, err := config.Get("bindaddr")
 	checkerr(err)
 	c.bindaddr = bindaddr

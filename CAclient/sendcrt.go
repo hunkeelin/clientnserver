@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/pem"
+	"errors"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -19,10 +18,11 @@ func newfileUploadRequest(uri string, csr []byte) (*http.Request, error) {
 	return req, err
 }
 
-func sendcsr(m, host, k string, csr []byte) {
+func sendcsr(m, host, k string, csr []byte) ([]byte, error) {
+	var toReturn []byte
 	request, err := newfileUploadRequest(host, csr)
 	if err != nil {
-		panic(err)
+		return toReturn, err
 	}
 
 	// Get the SystemCertPool, continue with an empty pool on error
@@ -32,10 +32,10 @@ func sendcsr(m, host, k string, csr []byte) {
 	}
 	certs, err := ioutil.ReadFile(m)
 	if err != nil {
-		log.Fatal(err)
+		return toReturn, err
 	}
 	if ok := rootCAs.AppendCertsFromPEM(certs); !ok {
-		log.Println("No certs appended, using system certs only")
+		return toReturn, errors.New("No certs appended, using system certs only")
 	}
 	config := &tls.Config{
 		InsecureSkipVerify: false,
@@ -50,7 +50,7 @@ func sendcsr(m, host, k string, csr []byte) {
 	//** end of clean up
 	resp, err := client.Do(request)
 	if err != nil {
-		log.Fatal(err)
+		return toReturn, err
 	} else {
 		body := &bytes.Buffer{}
 		_, err := body.ReadFrom(resp.Body)
@@ -58,13 +58,7 @@ func sendcsr(m, host, k string, csr []byte) {
 			log.Fatal(err)
 		}
 		resp.Body.Close()
-
-		clientCRTFile, err := os.Create("test2.klin-pro.com" + ".crt")
-		if err != nil {
-			panic(err)
-		}
-		pem.Encode(clientCRTFile, &pem.Block{Type: "CERTIFICATE", Bytes: body.Bytes()})
-		clientCRTFile.Close()
-
+		toReturn = body.Bytes()
 	}
+	return toReturn, nil
 }
