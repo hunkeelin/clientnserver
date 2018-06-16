@@ -15,10 +15,11 @@ func (f *Conn) handleWebHook(w http.ResponseWriter, r *http.Request) {
 		io.Copy(to, t)
 		to.Close()
 		msg := "fag"
-		status := 100
+		status := 400
 		fmt.Println(msg, status)
 		w.WriteHeader(status)
 		w.Write([]byte(msg))
+		fmt.Println(r.FormValue("filename"))
 		return
 	} else {
 		msg := "wut"

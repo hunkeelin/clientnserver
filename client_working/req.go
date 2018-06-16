@@ -4,15 +4,55 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/json"
+	"io"
 	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 )
 
+func customRequest(uri, paramName, path string, params map[string]string) (*http.Request, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile(paramName, filepath.Base(path))
+	if err != nil {
+		return nil, err
+	}
+	_, err = io.Copy(part, file)
+
+	for key, val := range params {
+		_ = writer.WriteField(key, val)
+	}
+	err = writer.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", uri, body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	return req, err
+
+}
+
 // Creates a new file upload http request with optional extra params
-func testreq(mastercert, host string) {
+func testreqv2(mastercert, host string) {
+	extraParams := map[string]string{
+		"filename": "testfilename",
+	}
+	req, err := customRequest(host, "file", "testfile", extraParams)
+	if err != nil {
+		panic(err)
+	}
 	cert, err := tls.LoadX509KeyPair("test2.klin-pro.com.crt", "test2.klin-pro.com.key")
 	if err != nil {
 		log.Fatalln("Unable to load cert", err)
@@ -28,21 +68,14 @@ func testreq(mastercert, host string) {
 	clientCertPool.AppendCertsFromPEM(clientCACert)
 
 	tlsConfig := &tls.Config{
-		InsecureSkipVerify: false,
-		Certificates:       []tls.Certificate{cert},
-		RootCAs:            clientCertPool,
+		//	InsecureSkipVerify: false,
+		Certificates: []tls.Certificate{cert},
+		RootCAs:      clientCertPool,
 	}
 	tr := &http.Transport{TLSClientConfig: tlsConfig}
 	client := &http.Client{
-		Timeout:   500 * time.Millisecond,
+		Timeout:   55500 * time.Millisecond,
 		Transport: tr,
-	}
-	payload := Payload{s: "shit"}
-	encodepayload, _ := json.Marshal(payload)
-	ebody := bytes.NewReader(encodepayload)
-	req, err := http.NewRequest("POST", "https://test3.klin-pro.com:2018", ebody)
-	if err != nil {
-		log.Println("Unable to speak to our server", err)
 	}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -51,8 +84,4 @@ func testreq(mastercert, host string) {
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
 	log.Println(string(body), string(resp.Status))
-}
-
-type Payload struct {
-	s string
 }
