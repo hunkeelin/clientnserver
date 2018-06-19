@@ -37,7 +37,8 @@ func testreq(mastercert, host string) {
 		Timeout:   500 * time.Millisecond,
 		Transport: tr,
 	}
-	payload := Payload{s: "shit"}
+	payload := Records{{C: "asdf", D: true}}
+
 	encodepayload, _ := json.Marshal(payload)
 	ebody := bytes.NewReader(encodepayload)
 	req, err := http.NewRequest("POST", "https://test3.klin-pro.com:2018", ebody)
@@ -53,6 +54,7 @@ func testreq(mastercert, host string) {
 	log.Println(string(body), string(resp.Status))
 }
 
-type Payload struct {
-	s string
+type Records []struct {
+	C string `json:"content"`
+	D bool   `json:"disabled"`
 }
