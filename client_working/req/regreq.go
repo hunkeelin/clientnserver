@@ -47,12 +47,12 @@ func SendPayload(i *ReqInfo, payload interface{}) {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	log.Println(string(body), string(resp.Status))
 }
