@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	gconfdir = flag.String("config", "server.conf", "location of the genkins.conf")
-	genCSR   = flag.Bool("genCSR", false, "true = generate CSR")
+	gconfdir = flag.String("Config", "server.conf", "location of the config")
+	servetls = flag.Bool("https", false, "Whether to serve https or not")
 )
 
 func main() {
@@ -59,8 +59,11 @@ func main() {
 		IdleTimeout:  120 * time.Second,
 	}
 	fmt.Println("listening to " + c.bindaddr + " " + c.port)
-	err = s.ListenAndServeTLS(c.certpath, c.keypath)
-	//err := s.ListenAndServe()
+	if *servetls {
+		err = s.ListenAndServeTLS(c.certpath, c.keypath)
+	} else {
+		err = s.ListenAndServe()
+	}
 	if err != nil {
 		log.Fatal("can't listen and serve check port and binding addr", err)
 	}

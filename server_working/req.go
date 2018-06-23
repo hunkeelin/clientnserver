@@ -1,8 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -14,19 +17,34 @@ func (f *Conn) handleWebHook(w http.ResponseWriter, r *http.Request) {
 		to, _ := os.Create("shit")
 		io.Copy(to, t)
 		to.Close()
-		msg := "fag"
-		status := 400
+		msg := "file transferred"
+		status := 200
 		fmt.Println(msg, status)
 		w.WriteHeader(status)
 		w.Write([]byte(msg))
 		fmt.Println(r.FormValue("filename"))
 		return
 	} else {
-		msg := "wut"
+		msg := "Got payload"
 		status := 200
 		fmt.Println(msg, status)
+		f, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			panic(err)
+		}
+		var m Records
+		err = json.Unmarshal(f, &m)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(m.C)
 		w.WriteHeader(status)
 		w.Write([]byte(msg))
 		return
 	}
+}
+
+type Records struct {
+	C string `json:"content"`
+	D bool   `json:"disabled"`
 }
